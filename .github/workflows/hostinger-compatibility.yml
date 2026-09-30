@@ -1,0 +1,33 @@
+name: Hostinger compatibility check
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "next.config.ts"
+      - "src/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build-node20:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://sdhnandbgnllsgyxsbwv.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+      SUPABASE_SERVICE_ROLE_KEY: ci-placeholder
+      ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      META_APP_SECRET: ci-placeholder
+      NEXT_PUBLIC_SITE_URL: https://aquamarine-rabbit-460312.hostingersite.com
+      NEXT_PUBLIC_APP_LOCALE: en
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
