@@ -15,31 +15,34 @@ jobs:
       - name: Checkout my repository
         uses: actions/checkout@v4
 
-      - name: Import WACRM
+      - name: Import WACRM without upstream workflows
         shell: bash
         run: |
           set -e
+
           if [ -f .wacrm-import-complete ]; then
             echo "WACRM source is already imported."
             exit 0
           fi
 
+          cp .github/workflows/import-wacrm.yml /tmp/import-wacrm.yml
+
           git clone --depth 1 https://github.com/ArnasDon/wacrm.git /tmp/wacrm
           rm -rf /tmp/wacrm/.git
           cp -a /tmp/wacrm/. .
+
+          rm -rf .github/workflows
+          mkdir -p .github/workflows
+          cp /tmp/import-wacrm.yml .github/workflows/import-wacrm.yml
+
           touch .wacrm-import-complete
 
       - name: Commit imported source
         shell: bash
         run: |
           set -e
-          if [ ! -f .wacrm-import-complete ]; then
-            echo "Nothing to commit."
-            exit 0
-          fi
-
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git diff --cached --quiet && exit 0
           git commit -m "Import WACRM source code"
