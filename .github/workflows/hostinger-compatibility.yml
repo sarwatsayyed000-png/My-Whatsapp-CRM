@@ -1,13 +1,9 @@
 name: Hostinger compatibility check
 
 on:
-  workflow_dispatch:
   push:
-    paths:
-      - "package.json"
-      - "package-lock.json"
-      - "next.config.ts"
-      - "src/**"
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
