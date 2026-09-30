@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout my repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Import WACRM without upstream workflows
         shell: bash
