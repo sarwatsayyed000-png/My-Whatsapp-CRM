@@ -72,7 +72,7 @@
  * --sidebar-ring) live in the ACCENT blocks. They set disjoint
  * variables, so cascade order between them doesn't matter.
  *
- * `:root` carries the dark-mode + violet defaults so a visitor
+ * `:root` carries the dark-mode + Speedy Way defaults so a visitor
  * renders correctly before JS runs; the boot script in
  * layout.tsx replays the saved mode + accent before first paint.
  *
@@ -147,7 +147,35 @@ html[data-mode="light"] {
 
 /* ---- ACCENT: primary color ---- */
 
+/* Speedy Way Travels brand — maroon #A42547 primary, navy #242F65 second.
+ * Light mode uses the exact brand maroon; dark mode lifts it (#E05A7E)
+ * so text/icons on near-black surfaces stay readable. */
 :root,
+html[data-theme="speedyway"] {
+  --primary: oklch(0.48 0.163 10.7);
+  --primary-foreground: oklch(0.985 0 0);
+  --primary-hover: oklch(0.423 0.143 10.5);
+  --primary-soft: oklch(0.48 0.163 10.7 / 0.1);
+  --primary-soft-2: oklch(0.48 0.163 10.7 / 0.18);
+  --ring: oklch(0.48 0.163 10.7);
+  --chart-1: oklch(0.48 0.163 10.7);
+  --chart-2: oklch(0.328 0.096 271.5);
+  --sidebar-primary: oklch(0.48 0.163 10.7);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-ring: oklch(0.48 0.163 10.7);
+}
+html[data-theme="speedyway"][data-mode="dark"] {
+  --primary: oklch(0.649 0.169 6.5);
+  --primary-hover: oklch(0.705 0.152 4.6);
+  --primary-soft: oklch(0.649 0.169 6.5 / 0.14);
+  --primary-soft-2: oklch(0.649 0.169 6.5 / 0.24);
+  --ring: oklch(0.649 0.169 6.5);
+  --chart-1: oklch(0.649 0.169 6.5);
+  --chart-2: oklch(0.692 0.097 275.6);
+  --sidebar-primary: oklch(0.649 0.169 6.5);
+  --sidebar-ring: oklch(0.649 0.169 6.5);
+}
+
 html[data-theme="violet"] {
   --primary: oklch(0.526 0.247 293);
   --primary-foreground: oklch(0.985 0 0);

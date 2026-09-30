@@ -1,8 +1,8 @@
 import { ImageResponse } from "next/og";
 
-// Replaces the default Next.js favicon with the brand mark — Hostinger
-// violet rounded square + white chat-square glyph — matching the
-// sidebar logo in `src/components/layout/sidebar.tsx`. Next.js renders
+// Replaces the default Next.js favicon with the Speedy Way brand mark —
+// maroon→navy rounded square + white paper-plane glyph — matching
+// `src/components/brand-mark.tsx` used in the sidebar and auth pages. Next.js renders
 // this at build time and auto-injects <link rel="icon"> into <head>.
 //
 // This route takes precedence over src/app/favicon.ico, which is the
@@ -22,7 +22,7 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#7c3aed", // primary (Hostinger-aligned purple)
+          background: "linear-gradient(135deg, #A42547, #242F65)", // Speedy Way maroon → navy
           borderRadius: 6,
         }}
       >
@@ -32,11 +32,12 @@ export default function Icon() {
           viewBox="0 0 24 24"
           fill="none"
           stroke="#ffffff"
-          strokeWidth="2.5"
+          strokeWidth="2.25"
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <path d="M22 2 11 13" />
+          <path d="M22 2 15 22l-4-9-9-4 20-7z" />
         </svg>
       </div>
     ),
