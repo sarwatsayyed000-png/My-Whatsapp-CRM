@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md border-border bg-card">
         <CardHeader className="items-center text-center">
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-            <BrandMark className="h-12 w-12 rounded-xl" iconClassName="h-6 w-6" />
+            <BrandMark className="h-12 w-12 rounded-xl" />
           </div>
           <CardTitle className="text-xl text-foreground">{t("title")}</CardTitle>
           <CardDescription className="text-muted-foreground">
