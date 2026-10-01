@@ -1,16 +1,18 @@
 import { ImageResponse } from "next/og";
 
-// Replaces the default Next.js favicon with the Speedy Way brand mark —
-// maroon→navy rounded square + white paper-plane glyph — matching
-// `src/components/brand-mark.tsx` used in the sidebar and auth pages. Next.js renders
-// this at build time and auto-injects <link rel="icon"> into <head>.
-//
-// This route takes precedence over src/app/favicon.ico, which is the
-// Next.js default and can stay on disk harmlessly (or be removed).
+// Favicon: the Speedy Way "D" rocket mark on a white rounded square,
+// matching `src/components/brand-mark.tsx` (sidebar + auth pages).
+// The mark is embedded as a data URL so the edge route needs no file
+// access. Source image: public/logo-mark.png. Next.js auto-injects
+// <link rel="icon"> for this route and it takes precedence over
+// src/app/favicon.ico.
 
 export const runtime = "edge";
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
+
+const LOGO_MARK =
+  "data:image/png;base64,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";
 
 export default function Icon() {
   return new ImageResponse(
@@ -22,23 +24,11 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #A42547, #242F65)", // Speedy Way maroon → navy
+          background: "#ffffff",
           borderRadius: 6,
         }}
       >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#ffffff"
-          strokeWidth="2.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M22 2 11 13" />
-          <path d="M22 2 15 22l-4-9-9-4 20-7z" />
-        </svg>
+        <img src={LOGO_MARK} width={28} height={19} alt="" />
       </div>
     ),
     { ...size },
