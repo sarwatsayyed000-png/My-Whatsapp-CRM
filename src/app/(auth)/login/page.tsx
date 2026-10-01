@@ -92,7 +92,7 @@ function LoginPageInner() {
             {inviteToken ? (
               <UsersRound className="h-6 w-6 text-primary" />
             ) : (
-              <BrandMark className="h-12 w-12 rounded-xl" iconClassName="h-6 w-6" />
+              <BrandMark className="h-12 w-12 rounded-xl" />
             )}
           </div>
           <CardTitle className="text-xl text-foreground">
