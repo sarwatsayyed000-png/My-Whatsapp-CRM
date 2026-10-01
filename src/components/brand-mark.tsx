@@ -1,12 +1,13 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Speedy Way Travels brand mark — maroon→navy tile with a paper-plane
- * glyph (from the brand's line-art icon set).
+ * Speedy Way Travels brand mark — the "D" rocket logo from
+ * `public/logo-mark.png`, shown on a white rounded tile.
  *
- * LOGO SLOT: to use the real Speedy Way logo instead, drop the file at
- * `public/logo.png` and replace the <svg> below with:
- *   <img src="/logo.png" alt="" className="h-full w-full object-contain" />
+ * The logo's inner details (ring, plane) are transparent cut-outs, so
+ * the white tile keeps them visible in dark mode as well as light.
+ * To change the logo, replace `public/logo-mark.png` (transparent PNG,
+ * roughly 3:2, logo in brand maroon).
  */
 export const BRAND_MAROON = "#A42547";
 export const BRAND_NAVY = "#242F65";
@@ -22,25 +23,16 @@ export function BrandMark({
     <div
       aria-hidden="true"
       className={cn(
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white",
+        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white ring-1 ring-black/10",
         className,
       )}
-      style={{
-        background: `linear-gradient(135deg, ${BRAND_MAROON}, ${BRAND_NAVY})`,
-      }}
     >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={cn("h-4 w-4", iconClassName)}
-      >
-        <path d="M22 2 11 13" />
-        <path d="M22 2 15 22l-4-9-9-4 20-7z" />
-      </svg>
+      {/* eslint-disable-next-line @next/next/no-img-element -- tiny static logo; next/image adds nothing here */}
+      <img
+        src="/logo-mark.png"
+        alt=""
+        className={cn("h-auto w-[82%] object-contain", iconClassName)}
+      />
     </div>
   );
 }
