@@ -12,6 +12,11 @@ import {
   Pencil,
   RotateCcw,
   Upload,
+  Search,
+  Copy,
+  Eye,
+  FileText,
+  SearchX,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import {
@@ -31,7 +36,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
-import { SettingsPanelHead } from './settings-panel-head';
+import { cn } from '@/lib/utils';
+import { EmptyState } from '@/components/dashboard/empty-state';
+import { Skeleton } from '@/components/dashboard/skeleton';
+import { TemplatePreview } from './template-preview';
+import {
+  STATUS_FILTERS,
+  countByStatus,
+  duplicateName,
+  filterTemplates,
+  type StatusFilter,
+} from '@/lib/templates/template-helpers';
 import {
   Dialog,
   DialogContent,
@@ -59,6 +74,16 @@ import {
 } from '@/lib/whatsapp/template-validators';
 
 const CATEGORIES = ['Marketing', 'Utility', 'Authentication'] as const;
+
+// Explicit key map (not `tp(\`status.${f}\`)`) so every key is greppable.
+const STATUS_LABEL_KEY: Record<StatusFilter, string> = {
+  all: 'status.all',
+  approved: 'status.approved',
+  pending: 'status.pending',
+  rejected: 'status.rejected',
+  draft: 'status.draft',
+  inactive: 'status.inactive',
+};
 type HeaderFormat = 'none' | 'text' | 'image' | 'video' | 'document';
 const HEADER_FORMATS: HeaderFormat[] = ['none', 'text', 'image', 'video', 'document'];
 
@@ -131,6 +156,7 @@ function emptyButton(type: TemplateButton['type']): TemplateButton {
 
 export function TemplateManager() {
   const t = useTranslations('Settings.templates');
+  const tp = useTranslations('Templates');
   const supabase = createClient();
   const { user, loading: authLoading } = useAuth();
 
@@ -156,6 +182,28 @@ export function TemplateManager() {
   // Resumable-Upload handle.
   const [uploadingHeader, setUploadingHeader] = useState(false);
   const headerFileRef = useRef<HTMLInputElement>(null);
+
+  // List filters (search box, status tabs, category select) and the
+  // read-only preview dialog.
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [categoryFilter, setCategoryFilter] =
+    useState<'all' | MessageTemplate['category']>('all');
+  const [previewTemplate, setPreviewTemplate] =
+    useState<MessageTemplate | null>(null);
+
+  const statusCounts = useMemo(() => countByStatus(templates), [templates]);
+  const visibleTemplates = useMemo(
+    () =>
+      filterTemplates(templates, {
+        query,
+        status: statusFilter,
+        category: categoryFilter,
+      }),
+    [templates, query, statusFilter, categoryFilter],
+  );
+  const filtersActive =
+    query.trim() !== '' || statusFilter !== 'all' || categoryFilter !== 'all';
 
   // Body variable indices — `[1, 2, 3]` for "{{1}} {{2}} {{3}}". We
   // re-run the extractor on every render to keep the sample-value rows
@@ -189,17 +237,19 @@ export function TemplateManager() {
       setLoading(false);
       return;
     }
-    fetchTemplates(user.id);
+    fetchTemplates();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user?.id]);
 
-  async function fetchTemplates(userId: string) {
+  // No user_id filter: message_templates RLS is account-scoped
+  // (migration 017), so teammates on a shared account see the same
+  // templates. Filtering by user_id hid templates a teammate created.
+  async function fetchTemplates() {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('message_templates')
         .select('*')
-        .eq('user_id', userId)
         .order('created_at', { ascending: false });
       if (error) throw error;
       setTemplates(data || []);
@@ -257,6 +307,20 @@ export function TemplateManager() {
     setDialogOpen(true);
   }
 
+  // Pre-fill the create dialog from an existing template under a new,
+  // non-colliding name. Submitting creates a brand-new template.
+  function openDuplicate(template: MessageTemplate) {
+    openEdit(template);
+    setEditingId(null);
+    setForm((prev) => ({
+      ...prev,
+      name: duplicateName(
+        template.name,
+        templates.map((x) => x.name),
+      ),
+    }));
+  }
+
   function openCreate() {
     setEditingId(null);
     setForm(emptyForm);
@@ -286,7 +350,7 @@ export function TemplateManager() {
       }
       // Refresh first, then close — re-opening the dialog
       // immediately should not show a stale list.
-      if (user) await fetchTemplates(user.id);
+      if (user) await fetchTemplates();
       toast.success(
         data.dry_run
           ? isEdit
@@ -340,7 +404,7 @@ export function TemplateManager() {
           { duration: 10000 },
         );
       }
-      await fetchTemplates(user.id);
+      await fetchTemplates();
     } catch (err) {
       console.error('Template sync error:', err);
       toast.error(err instanceof Error ? err.message : t('toastSyncError'));
@@ -455,8 +519,24 @@ export function TemplateManager() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="size-6 animate-spin text-primary" />
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-40" />
+            <Skeleton className="h-4 w-72" />
+          </div>
+          <Skeleton className="h-9 w-56" />
+        </div>
+        <Skeleton className="h-9 w-full" />
+        <div className="grid gap-3 xl:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-border bg-card p-4">
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="mt-3 h-3 w-full" />
+              <Skeleton className="mt-2 h-3 w-2/3" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -519,40 +599,127 @@ export function TemplateManager() {
 
   return (
     <section className="animate-in fade-in-50 space-y-4 duration-200">
-      <SettingsPanelHead
-        title={t('title')}
-        description={t('description')}
-        action={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={handleSyncFromMeta}
-              disabled={syncing}
-              title={t('syncTitle')}
-            >
-              <RefreshCw className={`size-4 ${syncing ? 'animate-spin' : ''}`} />
-              {syncing ? t('syncing') : t('syncFromMeta')}
-            </Button>
-            <Button onClick={openCreate}>
-              <Plus className="size-4" />
-              {t('newTemplate')}
-            </Button>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">{tp('title')}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{tp('description')}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handleSyncFromMeta}
+            disabled={syncing}
+            title={t('syncTitle')}
+          >
+            <RefreshCw className={`size-4 ${syncing ? 'animate-spin' : ''}`} />
+            {syncing ? t('syncing') : t('syncFromMeta')}
+          </Button>
+          <Button onClick={openCreate}>
+            <Plus className="size-4" />
+            {t('newTemplate')}
+          </Button>
+        </div>
+      </div>
+
+      {templates.length > 0 && (
+        <div className="space-y-3">
+          <div
+            className="flex gap-1 overflow-x-auto rounded-lg bg-muted/60 p-1"
+            role="tablist"
+            aria-label={tp('statusFilterLabel')}
+          >
+            {STATUS_FILTERS.map((f) => (
+              <button
+                key={f}
+                type="button"
+                role="tab"
+                aria-selected={statusFilter === f}
+                onClick={() => setStatusFilter(f)}
+                className={cn(
+                  'inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
+                  statusFilter === f
+                    ? 'bg-secondary text-secondary-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                {tp(STATUS_LABEL_KEY[f])}
+                <span className="rounded-full bg-background/60 px-1.5 tabular-nums">
+                  {statusCounts[f]}
+                </span>
+              </button>
+            ))}
           </div>
-        }
-      />
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={tp('searchPlaceholder')}
+                aria-label={tp('searchPlaceholder')}
+                className="pl-9"
+              />
+            </div>
+            <Select
+              value={categoryFilter}
+              onValueChange={(v) =>
+                setCategoryFilter((v ?? 'all') as 'all' | MessageTemplate['category'])
+              }
+            >
+              <SelectTrigger className="sm:w-48" aria-label={tp('categoryFilterLabel')}>
+                <SelectValue>
+                  {(v: string) =>
+                    v === 'all' || !v ? tp('allCategories') : v
+                  }
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{tp('allCategories')}</SelectItem>
+                {CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
 
       {templates.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <p className="text-muted-foreground text-sm">{t('noTemplates')}</p>
-            <p className="text-muted-foreground text-xs mt-1">
-              {t('createFirst')}
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={FileText}
+          title={t('noTemplates')}
+          hint={t('createFirst')}
+          className="min-h-60"
+        />
+      ) : visibleTemplates.length === 0 ? (
+        <div className="space-y-3">
+          <EmptyState
+            icon={SearchX}
+            title={tp('noMatches')}
+            hint={tp('noMatchesHint')}
+            className="min-h-48"
+          />
+          {filtersActive && (
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setQuery('');
+                  setStatusFilter('all');
+                  setCategoryFilter('all');
+                }}
+              >
+                {tp('clearFilters')}
+              </Button>
+            </div>
+          )}
+        </div>
       ) : (
         <div className="grid gap-3 xl:grid-cols-2">
-          {templates.map((template) => {
+          {visibleTemplates.map((template) => {
             const statusKey = template.status || 'DRAFT';
             const status = templateStatusConfig[statusKey];
             return (
@@ -606,7 +773,27 @@ export function TemplateManager() {
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 shrink-0 ml-2">
+                  <div className="flex flex-wrap items-center justify-end gap-1 shrink-0 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setPreviewTemplate(template)}
+                      title={tp('previewAction')}
+                      aria-label={tp('previewAction')}
+                      className="text-muted-foreground hover:text-foreground h-8 w-8"
+                    >
+                      <Eye className="size-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => openDuplicate(template)}
+                      title={tp('duplicateAction')}
+                      aria-label={tp('duplicateAction')}
+                      className="text-muted-foreground hover:text-foreground h-8 w-8"
+                    >
+                      <Copy className="size-4" />
+                    </Button>
                     {statusKey === 'APPROVED' && (
                       <Button
                         variant="ghost"
@@ -674,7 +861,7 @@ export function TemplateManager() {
           }
         }}
       >
-        <DialogContent className="bg-popover border-border sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-popover border-border sm:max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-popover-foreground">
               {editingId ? t('dialogEditTitle') : t('dialogNewTitle')}
@@ -693,7 +880,8 @@ export function TemplateManager() {
             </div>
           )}
 
-          <div className="space-y-4 py-2">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <div className="min-w-0 space-y-4 py-2">
             <div className="space-y-2">
               <Label className="text-muted-foreground">{t('templateName')}</Label>
               <Input
@@ -1088,6 +1276,25 @@ export function TemplateManager() {
               )}
             </div>
           </div>
+          <aside className="lg:sticky lg:top-0 lg:self-start">
+            <p className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+              {tp('livePreview')}
+            </p>
+            <TemplatePreview
+              data={{
+                header_type: form.header_format,
+                header_content: form.header_content,
+                header_media_url: form.header_media_url,
+                header_sample: form.header_sample,
+                body_text: form.body_text,
+                body_samples: form.body_samples,
+                footer_text: form.footer_text,
+                buttons: form.buttons,
+              }}
+            />
+            <p className="mt-2 text-xs text-muted-foreground">{tp.raw('previewHint')}</p>
+          </aside>
+          </div>
 
           <DialogFooter className="bg-popover border-border">
             <Button
@@ -1158,6 +1365,60 @@ export function TemplateManager() {
                 t('delete')
               )}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={previewTemplate !== null}
+        onOpenChange={(open) => {
+          if (!open) setPreviewTemplate(null);
+        }}
+      >
+        <DialogContent className="bg-popover border-border sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-popover-foreground break-all">
+              {previewTemplate?.name}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              {previewTemplate
+                ? [
+                    previewTemplate.category,
+                    previewTemplate.language,
+                    templateStatusConfig[previewTemplate.status || 'DRAFT'].label,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')
+                : null}
+            </DialogDescription>
+          </DialogHeader>
+          {previewTemplate && (
+            <TemplatePreview
+              data={{
+                header_type: previewTemplate.header_type ?? 'none',
+                header_content: previewTemplate.header_content,
+                header_media_url: previewTemplate.header_media_url,
+                header_sample: previewTemplate.sample_values?.header?.[0],
+                body_text: previewTemplate.body_text,
+                body_samples: previewTemplate.sample_values?.body,
+                footer_text: previewTemplate.footer_text,
+                buttons: previewTemplate.buttons,
+              }}
+            />
+          )}
+          <DialogFooter className="bg-popover border-border">
+            {previewTemplate && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const target = previewTemplate;
+                  setPreviewTemplate(null);
+                  openDuplicate(target);
+                }}
+              >
+                <Copy className="size-4" />
+                {tp('duplicateAction')}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

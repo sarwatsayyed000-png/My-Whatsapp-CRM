@@ -36,7 +36,7 @@ const ACTIONS: Action[] = [
 // Messaging-focused shortcuts shown with the analytics overview.
 const SHORTCUTS: Action[] = [
   { labelKey: 'importContacts', href: '/contacts', icon: Upload, tint: 'text-blue-400' },
-  { labelKey: 'newTemplate', href: '/settings?tab=templates', icon: FileText, tint: 'text-emerald-400' },
+  { labelKey: 'newTemplate', href: '/templates', icon: FileText, tint: 'text-emerald-400' },
   { labelKey: 'buildFlow', href: '/flows', icon: Workflow, tint: 'text-violet-400' },
   { labelKey: 'viewReports', href: '/analytics', icon: BarChart3, tint: 'text-primary' },
 ]

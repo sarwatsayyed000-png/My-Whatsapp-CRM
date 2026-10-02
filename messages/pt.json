@@ -26,6 +26,7 @@
     "contacts": "Contatos",
     "pipelines": "Pipelines",
     "broadcasts": "Disparos",
+    "templates": "Modelos",
     "automations": "Automações",
     "analytics": "Análises",
     "flows": "Fluxos",
@@ -52,6 +53,7 @@
     "contacts": "Contatos",
     "pipelines": "Pipelines",
     "broadcasts": "Disparos",
+    "templates": "Modelos",
     "automations": "Automações",
     "analytics": "Análises",
     "settings": "Configurações",
@@ -277,6 +279,44 @@
       "deliveryPct": "% entrega",
       "readPct": "% leitura",
       "created": "Criada"
+    }
+  },
+  "Templates": {
+    "title": "Modelos",
+    "description": "Crie, visualize e gerencie seus modelos de mensagem do WhatsApp.",
+    "statusFilterLabel": "Filtrar por status",
+    "categoryFilterLabel": "Filtrar por categoria",
+    "searchPlaceholder": "Buscar modelos…",
+    "allCategories": "Todas as categorias",
+    "noMatches": "Nenhum modelo corresponde aos filtros",
+    "noMatchesHint": "Tente outra busca ou outro status.",
+    "clearFilters": "Limpar filtros",
+    "previewAction": "Visualizar",
+    "duplicateAction": "Duplicar",
+    "livePreview": "Pré-visualização ao vivo",
+    "previewHint": "Os valores de exemplo preenchem as variáveis {{n}}. Marcadores destacados ainda precisam de um exemplo.",
+    "status": {
+      "all": "Todos",
+      "approved": "Aprovados",
+      "pending": "Pendentes",
+      "rejected": "Rejeitados",
+      "draft": "Rascunhos",
+      "inactive": "Pausados / desativados"
+    },
+    "preview": {
+      "ariaLabel": "Pré-visualização do modelo",
+      "emptyBody": "O corpo da mensagem aparecerá aqui",
+      "buttonPlaceholder": "Botão",
+      "media": {
+        "image": "Cabeçalho de imagem",
+        "video": "Cabeçalho de vídeo",
+        "document": "Cabeçalho de documento"
+      }
+    },
+    "moved": {
+      "title": "Modelos de mensagem",
+      "description": "Os modelos agora têm sua própria página na barra lateral.",
+      "cta": "Abrir Modelos"
     }
   },
   "Inbox": {

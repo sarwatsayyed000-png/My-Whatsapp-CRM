@@ -26,6 +26,7 @@
     "contacts": "Contacts",
     "pipelines": "Pipelines",
     "broadcasts": "Broadcasts",
+    "templates": "Templates",
     "automations": "Automations",
     "analytics": "Analytics",
     "flows": "Flows",
@@ -52,6 +53,7 @@
     "contacts": "Contacts",
     "pipelines": "Pipelines",
     "broadcasts": "Broadcasts",
+    "templates": "Templates",
     "automations": "Automations",
     "analytics": "Analytics",
     "settings": "Settings",
@@ -277,6 +279,44 @@
       "deliveryPct": "Delivery %",
       "readPct": "Read %",
       "created": "Created"
+    }
+  },
+  "Templates": {
+    "title": "Templates",
+    "description": "Create, preview and manage your WhatsApp message templates.",
+    "statusFilterLabel": "Filter by status",
+    "categoryFilterLabel": "Filter by category",
+    "searchPlaceholder": "Search templates…",
+    "allCategories": "All categories",
+    "noMatches": "No templates match your filters",
+    "noMatchesHint": "Try a different search or status.",
+    "clearFilters": "Clear filters",
+    "previewAction": "Preview",
+    "duplicateAction": "Duplicate",
+    "livePreview": "Live preview",
+    "previewHint": "Sample values fill in the {{n}} variables. Highlighted placeholders still need a sample.",
+    "status": {
+      "all": "All",
+      "approved": "Approved",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "draft": "Draft",
+      "inactive": "Paused / disabled"
+    },
+    "preview": {
+      "ariaLabel": "Template preview",
+      "emptyBody": "Your message body will appear here",
+      "buttonPlaceholder": "Button",
+      "media": {
+        "image": "Image header",
+        "video": "Video header",
+        "document": "Document header"
+      }
+    },
+    "moved": {
+      "title": "Message templates",
+      "description": "Templates now have their own page in the sidebar.",
+      "cta": "Open Templates"
     }
   },
   "Inbox": {
