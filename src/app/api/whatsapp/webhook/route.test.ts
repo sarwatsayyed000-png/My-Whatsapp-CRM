@@ -275,6 +275,13 @@ vi.mock('@/lib/flows/engine', () => ({
 vi.mock('@/lib/ai/auto-reply', () => ({
   dispatchInboundToAiReply: h.dispatchInboundToAiReply,
 }))
+vi.mock('@/lib/crm/server', () => ({
+  cancelFollowUpsOnInbound: vi.fn().mockResolvedValue(undefined),
+  prepareNewConversation: vi
+    .fn()
+    .mockResolvedValue({ forceEntryFlowId: null, dealId: null }),
+  assignIfQualified: vi.fn().mockResolvedValue(undefined),
+}))
 vi.mock('@/lib/webhooks/deliver', () => ({
   dispatchWebhookEvent: h.dispatchWebhookEvent,
 }))

@@ -19,6 +19,11 @@ import { dispatchInboundToFlows } from '@/lib/flows/engine'
 import { dispatchInboundToAiReply } from '@/lib/ai/auto-reply'
 import { dispatchWebhookEvent } from '@/lib/webhooks/deliver'
 import {
+  assignIfQualified,
+  cancelFollowUpsOnInbound,
+  prepareNewConversation,
+} from '@/lib/crm/server'
+import {
   handleTemplateWebhookChange,
   isTemplateWebhookField,
 } from '@/lib/whatsapp/template-webhook'
@@ -858,6 +863,33 @@ async function processMessage(
   await flagBroadcastReplyIfAny(accountId, contactRecord.id)
 
   // ============================================================
+  // CRM & Deals (migration 044).
+  //
+  // A customer message stops any "until the customer replies" follow-up
+  // sequence on their open deals. A brand-new conversation gets its
+  // "{contact} Deal" auto-created and is marked for round-robin; when
+  // lead qualification is on, the chosen flow is forced to run first
+  // and assignment waits until it ends (see assignIfQualified below).
+  // All three helpers own their try/catch and never throw.
+  // ============================================================
+  await cancelFollowUpsOnInbound(supabaseAdmin(), {
+    accountId,
+    contactId: contactRecord.id,
+  })
+  let forceEntryFlowId: string | null = null
+  if (convResult.created) {
+    const prepared = await prepareNewConversation(supabaseAdmin(), {
+      accountId,
+      contactId: contactRecord.id,
+      conversationId: conversation.id,
+      contactName: contactRecord.name ?? null,
+      contactPhone: contactRecord.phone ?? null,
+      configOwnerUserId,
+    })
+    forceEntryFlowId = prepared.forceEntryFlowId
+  }
+
+  // ============================================================
   // Flow runner dispatch.
   //
   // If the runner consumes the message (it either advanced an active
@@ -895,8 +927,19 @@ async function processMessage(
             meta_message_id: message.id,
           },
     isFirstInboundMessage,
+    forceEntryFlowId,
   })
   const flowConsumed = flowResult.consumed
+
+  // Round-robin the conversation (and its deal) once no flow is running
+  // for the contact — immediately for a new chat without qualification,
+  // or on the reply that ends the qualification flow. No-op unless the
+  // conversation is waiting for assignment.
+  await assignIfQualified(supabaseAdmin(), {
+    accountId,
+    contactId: contactRecord.id,
+    conversationId: conversation.id,
+  })
 
   // Fire any automations that react to this webhook event. All dispatches
   // run here (not earlier) so the contact, conversation, and inbound

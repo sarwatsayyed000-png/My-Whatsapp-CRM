@@ -198,7 +198,7 @@ export interface Conversation {
 // Notifications (migration 027)
 // ============================================================
 
-export type NotificationType = 'conversation_assigned';
+export type NotificationType = 'conversation_assigned' | 'follow_up_due';
 
 export interface Notification {
   id: string;
@@ -403,11 +403,109 @@ export interface Deal {
   notes?: string;
   expected_close_date?: string;
   status?: DealStatus;
+  /** When the deal entered its current stage (migration 044). */
+  stage_entered_at?: string;
+  /** 'whatsapp_auto' for deals the webhook auto-created (migration 044). */
+  source?: 'manual' | 'whatsapp_auto';
   created_at: string;
   updated_at?: string;
   contact?: Contact;
   stage?: PipelineStage;
   assignee?: Profile;
+}
+
+// ============================================================
+// CRM & Deals (migration 044)
+// ============================================================
+
+export type FollowUpChannel = 'whatsapp' | 'call' | 'task';
+export type FollowUpStatus = 'pending' | 'done' | 'skipped' | 'cancelled';
+
+export interface DealFollowUp {
+  id: string;
+  account_id: string;
+  deal_id: string;
+  /** profiles.id of the owning agent (mirrors deals.assigned_to). */
+  assigned_to: string | null;
+  due_at: string;
+  note: string | null;
+  channel: FollowUpChannel;
+  template_name: string | null;
+  is_automated: boolean;
+  cadence_id: string | null;
+  cadence_step_position: number | null;
+  status: FollowUpStatus;
+  status_reason: string | null;
+  completed_at: string | null;
+  notified_at: string | null;
+  whatsapp_message_id: string | null;
+  created_by: string | null;
+  created_at: string;
+  deal?: Deal;
+}
+
+export type CadenceStopWhen = 'reply_or_closed' | 'closed' | 'never';
+export type CadenceDelayUnit = 'minutes' | 'hours' | 'days';
+
+export interface FollowUpCadenceStep {
+  id?: string;
+  cadence_id?: string;
+  position: number;
+  delay_value: number;
+  delay_unit: CadenceDelayUnit;
+  template_name: string;
+  template_language: string | null;
+  template_params: string[];
+}
+
+export interface FollowUpCadence {
+  id: string;
+  account_id: string;
+  name: string;
+  pipeline_id: string;
+  trigger_stage_id: string;
+  whatsapp_config_id: string | null;
+  stop_when: CadenceStopWhen;
+  is_active: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  steps?: FollowUpCadenceStep[];
+}
+
+export interface CrmSettings {
+  account_id: string;
+  auto_create_deals: boolean;
+  round_robin_enabled: boolean;
+  round_robin_counter: number;
+  last_assigned_profile_id: string | null;
+}
+
+export interface LeadQualificationSettings {
+  account_id: string;
+  enabled: boolean;
+  flow_id: string | null;
+}
+
+export type TargetPeriod = 'weekly' | 'monthly' | 'quarterly';
+
+export interface AgentTarget {
+  id: string;
+  account_id: string;
+  agent_id: string;
+  period: TargetPeriod;
+  target_deals_won: number;
+  target_revenue: number;
+}
+
+export type ReportFrequency = 'daily' | 'weekly' | 'monthly';
+
+export interface TeamReportSettings {
+  account_id: string;
+  enabled: boolean;
+  frequency: ReportFrequency;
+  recipients: string[];
+  last_sent_at: string | null;
 }
 
 export type BroadcastStatus = 'draft' | 'scheduled' | 'sending' | 'sent' | 'failed';
