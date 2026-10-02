@@ -544,7 +544,9 @@
       "toastFailedDelete": "Failed to delete contact",
       "toastDeleted": "Contact deleted",
       "toastBulkFailedDelete": "Failed to delete contacts",
-      "toastBulkDeleted": "{count} contacts deleted"
+      "toastBulkDeleted": "{count} contacts deleted",
+      "optedOutBadge": "Opted out",
+      "optedOutTitle": "This contact opted out of marketing messages. Campaigns skip them."
     },
     "form": {
       "addTitle": "Add Contact",
@@ -641,7 +643,14 @@
       "toastCustomFieldsSaved": "Custom fields saved",
       "toastCustomFieldsFailed": "Failed to save custom fields",
       "toastTemplateSent": "Template \"{name}\" sent",
-      "toastTemplateFailed": "Failed to send template: {reason}"
+      "toastTemplateFailed": "Failed to send template: {reason}",
+      "marketingTitle": "Marketing messages",
+      "marketingSubscribed": "Subscribed — included in campaigns.",
+      "marketingOptedOutKeyword": "Opted out by replying STOP. Campaigns skip this contact.",
+      "marketingOptedOutManual": "Opted out manually. Campaigns skip this contact.",
+      "toastOptedIn": "Contact subscribed to marketing messages",
+      "toastOptedOut": "Contact opted out of marketing messages",
+      "toastOptOutFailed": "Could not update marketing preference. Has migration 043 been applied?"
     },
     "importModal": {
       "title": "Import Contacts",

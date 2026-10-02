@@ -119,6 +119,11 @@ export interface Contact {
   email?: string;
   company?: string;
   avatar_url?: string;
+  /** Marketing opt-out (migration 043). Broadcasts skip these contacts.
+   *  Undefined on databases that haven't applied 043. */
+  opted_out?: boolean;
+  opted_out_at?: string | null;
+  opt_out_source?: 'keyword' | 'manual' | null;
   created_at: string;
   updated_at: string;
   /** Hydrated by queries that embed `contact_tags(tags(*))` (e.g. the

@@ -22,6 +22,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { optOutUpdate } from '@/lib/contacts/opt-out';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -77,6 +79,7 @@ export function ContactDetailView({
   const [editEmail, setEditEmail] = useState('');
   const [editCompany, setEditCompany] = useState('');
   const [savingDetails, setSavingDetails] = useState(false);
+  const [savingOptOut, setSavingOptOut] = useState(false);
 
   // Tags tab
   const [allTags, setAllTags] = useState<Tag[]>([]);
@@ -235,6 +238,28 @@ export function ContactDetailView({
       onUpdated();
     }
     setSavingDetails(false);
+  }
+
+  // Manual marketing opt-out / opt-in (migration 043). Broadcasts skip
+  // opted-out contacts; one-to-one replies are unaffected.
+  async function setMarketingOptIn(subscribed: boolean) {
+    if (!contactId) return;
+    setSavingOptOut(true);
+    const { error } = await supabase
+      .from('contacts')
+      .update({
+        ...optOutUpdate(subscribed ? 'opt_in' : 'opt_out', 'manual'),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', contactId);
+    if (error) {
+      toast.error(t('toastOptOutFailed'));
+    } else {
+      toast.success(subscribed ? t('toastOptedIn') : t('toastOptedOut'));
+      fetchContact();
+      onUpdated();
+    }
+    setSavingOptOut(false);
   }
 
   async function toggleTag(tagId: string) {
@@ -546,6 +571,25 @@ export function ContactDetailView({
                     )}
                     {t('saveChangesBtn')}
                   </Button>
+
+                  <div className="mt-2 flex items-start justify-between gap-3 rounded-lg border border-border bg-muted/40 p-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">{t('marketingTitle')}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {contact?.opted_out
+                          ? contact.opt_out_source === 'keyword'
+                            ? t('marketingOptedOutKeyword')
+                            : t('marketingOptedOutManual')
+                          : t('marketingSubscribed')}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={!contact?.opted_out}
+                      disabled={savingOptOut || !contact}
+                      onCheckedChange={(subscribed: boolean) => setMarketingOptIn(subscribed)}
+                      aria-label={t('marketingTitle')}
+                    />
+                  </div>
                 </div>
               </TabsContent>
 

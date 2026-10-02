@@ -544,7 +544,9 @@
       "toastFailedDelete": "연락처를 삭제하지 못했습니다",
       "toastDeleted": "연락처가 삭제되었습니다",
       "toastBulkFailedDelete": "연락처를 삭제하지 못했습니다",
-      "toastBulkDeleted": "연락처 {count}개가 삭제되었습니다"
+      "toastBulkDeleted": "연락처 {count}개가 삭제되었습니다",
+      "optedOutBadge": "수신 거부",
+      "optedOutTitle": "이 연락처는 마케팅 메시지 수신을 거부했습니다. 캠페인에서 제외됩니다."
     },
     "form": {
       "addTitle": "연락처 추가",
@@ -641,7 +643,14 @@
       "toastCustomFieldsSaved": "커스텀 필드가 저장되었습니다",
       "toastCustomFieldsFailed": "커스텀 필드를 저장하지 못했습니다",
       "toastTemplateSent": "\"{name}\" 템플릿을 보냈습니다",
-      "toastTemplateFailed": "템플릿을 보내지 못했습니다: {reason}"
+      "toastTemplateFailed": "템플릿을 보내지 못했습니다: {reason}",
+      "marketingTitle": "마케팅 메시지",
+      "marketingSubscribed": "수신 중 — 캠페인에 포함됩니다.",
+      "marketingOptedOutKeyword": "STOP 회신으로 수신 거부했습니다. 캠페인에서 제외됩니다.",
+      "marketingOptedOutManual": "수동으로 수신 거부되었습니다. 캠페인에서 제외됩니다.",
+      "toastOptedIn": "연락처가 마케팅 메시지를 수신하도록 설정되었습니다",
+      "toastOptedOut": "연락처가 마케팅 메시지 수신 거부로 설정되었습니다",
+      "toastOptOutFailed": "마케팅 설정을 업데이트하지 못했습니다. 043 마이그레이션이 적용되었나요?"
     },
     "importModal": {
       "title": "연락처 가져오기",

@@ -544,7 +544,9 @@
       "toastFailedDelete": "Falha ao excluir o contato",
       "toastDeleted": "Contato excluído",
       "toastBulkFailedDelete": "Falha ao excluir os contatos",
-      "toastBulkDeleted": "{count} contatos excluídos"
+      "toastBulkDeleted": "{count} contatos excluídos",
+      "optedOutBadge": "Descadastrado",
+      "optedOutTitle": "Este contato cancelou o recebimento de mensagens de marketing. As campanhas o ignoram."
     },
     "form": {
       "addTitle": "Adicionar contato",
@@ -641,7 +643,14 @@
       "toastCustomFieldsSaved": "Campos personalizados salvos",
       "toastCustomFieldsFailed": "Falha ao salvar os campos personalizados",
       "toastTemplateSent": "Modelo \"{name}\" enviado",
-      "toastTemplateFailed": "Falha ao enviar o modelo: {reason}"
+      "toastTemplateFailed": "Falha ao enviar o modelo: {reason}",
+      "marketingTitle": "Mensagens de marketing",
+      "marketingSubscribed": "Inscrito — incluído nas campanhas.",
+      "marketingOptedOutKeyword": "Cancelou respondendo STOP. As campanhas ignoram este contato.",
+      "marketingOptedOutManual": "Cancelado manualmente. As campanhas ignoram este contato.",
+      "toastOptedIn": "Contato inscrito em mensagens de marketing",
+      "toastOptedOut": "Contato removido das mensagens de marketing",
+      "toastOptOutFailed": "Não foi possível atualizar a preferência de marketing. A migração 043 foi aplicada?"
     },
     "importModal": {
       "title": "Importar contatos",

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import {
@@ -8,6 +9,7 @@ import {
   batchRetryDelayMs,
 } from '@/lib/broadcast-retry';
 import { normalizeKey } from '@/lib/contacts/dedupe';
+import { excludeOptedOut } from '@/lib/contacts/opt-out';
 import { Contact, MessageTemplate } from '@/types';
 
 export type CustomFieldOperator = 'is' | 'is_not' | 'contains';
@@ -212,7 +214,18 @@ export function useBroadcastSending(): UseBroadcastSendingReturn {
       contacts = contacts.filter((c) => !excludedIds.has(c.id));
     }
 
-    return contacts;
+    // Never send marketing to contacts who opted out (migration 043).
+    // Applies to CSV audiences too: an uploaded number that matches an
+    // existing opted-out contact is still skipped.
+    const { kept, skipped } = excludeOptedOut(contacts);
+    if (skipped > 0) {
+      toast.info(
+        skipped === 1
+          ? '1 opted-out contact will be skipped.'
+          : `${skipped} opted-out contacts will be skipped.`,
+      );
+    }
+    return kept;
   }
 
   /**
