@@ -602,6 +602,14 @@ export default function ContactsPage() {
                   </TableCell>
                   <TableCell className="text-foreground font-medium">
                     {contact.name || <span className="text-muted-foreground italic">{t('unnamed')}</span>}
+                    {contact.opted_out && (
+                      <span
+                        className="ml-2 inline-flex items-center rounded-full border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-medium text-red-500 align-middle"
+                        title={t('optedOutTitle')}
+                      >
+                        {t('optedOutBadge')}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="text-muted-foreground font-mono text-xs">
                     {contact.phone}

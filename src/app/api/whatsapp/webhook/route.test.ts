@@ -138,14 +138,18 @@ vi.mock('@supabase/supabase-js', () => ({
             }),
             update: (patch: Record<string, unknown>) => {
               h.state.contactUpdates.push(patch)
-              return {
-                eq: () => ({
-                  select: () => ({
-                    maybeSingle: () =>
-                      Promise.resolve({ data: null, error: null }),
-                  }),
+              // identity backfill: update().eq().select().maybeSingle()
+              // opt-out (043):     update().eq().eq().eq() awaited directly
+              const chain: Record<string, unknown> = {
+                eq: () => chain,
+                select: () => ({
+                  maybeSingle: () =>
+                    Promise.resolve({ data: null, error: null }),
                 }),
+                then: (resolve: (v: { error: null }) => unknown) =>
+                  Promise.resolve({ error: null }).then(resolve),
               }
+              return chain
             },
             insert: (row: Record<string, unknown>) => {
               h.state.contactInserts.push(row)
@@ -1010,5 +1014,45 @@ describe('status webhook: failed statuses keep Meta\'s reason (#535)', () => {
     expect(h.state.recipientUpdates).toHaveLength(1)
     expect(h.state.recipientUpdates[0]).not.toHaveProperty('error_message')
     expect(h.state.recipientUpdates[0]).not.toHaveProperty('error_code')
+  })
+})
+
+describe('inbound webhook: marketing opt-out keywords (migration 043)', () => {
+  const textMessage = (body: string) => ({
+    ...TEXT_MESSAGE,
+    id: `wamid.${body}`,
+    text: { body },
+  })
+  const optOutWrites = () =>
+    h.state.contactUpdates.filter((u) => 'opted_out' in u)
+
+  it('marks the contact opted out on an exact STOP', async () => {
+    await runWebhook(textMessage('Stop'))
+
+    expect(optOutWrites()).toHaveLength(1)
+    expect(optOutWrites()[0]).toMatchObject({
+      opted_out: true,
+      opt_out_source: 'keyword',
+    })
+  })
+
+  it('opts the contact back in on START', async () => {
+    await runWebhook(textMessage('START'))
+
+    expect(optOutWrites()).toEqual([
+      { opted_out: false, opted_out_at: null, opt_out_source: null },
+    ])
+  })
+
+  it('ignores STOP inside a longer sentence', async () => {
+    await runWebhook(textMessage("please don't stop my booking"))
+
+    expect(optOutWrites()).toHaveLength(0)
+  })
+
+  it('still fans out to flows and automations', async () => {
+    await runWebhook(textMessage('STOP'))
+
+    expect(h.dispatchInboundToFlows).toHaveBeenCalled()
   })
 })

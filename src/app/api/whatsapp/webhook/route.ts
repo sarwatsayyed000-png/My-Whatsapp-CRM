@@ -15,6 +15,7 @@ import { findExistingContact, isUniqueViolation } from '@/lib/contacts/dedupe'
 import { reopenClosedConversation } from '@/lib/conversations/reopen'
 import { verifyMetaWebhookSignature } from '@/lib/whatsapp/webhook-signature'
 import { runAutomationsForTrigger } from '@/lib/automations/engine'
+import { detectOptKeyword, optOutUpdate } from '@/lib/contacts/opt-out'
 import { dispatchInboundToFlows } from '@/lib/flows/engine'
 import { dispatchInboundToAiReply } from '@/lib/ai/auto-reply'
 import { dispatchWebhookEvent } from '@/lib/webhooks/deliver'
@@ -569,6 +570,32 @@ async function flagBroadcastReplyIfAny(accountId: string, contactId: string) {
   }
 }
 
+async function applyOptKeyword(
+  accountId: string,
+  contactId: string,
+  text: string | undefined
+) {
+  const action = detectOptKeyword(text)
+  if (!action) return
+  try {
+    // Gate on the current state so a repeated STOP keeps the original
+    // opted_out_at instead of bumping it.
+    const { error } = await supabaseAdmin()
+      .from('contacts')
+      .update(optOutUpdate(action, 'keyword'))
+      .eq('id', contactId)
+      .eq('account_id', accountId)
+      .eq('opted_out', action === 'opt_in')
+    if (error) {
+      // Most likely migration 043 hasn't been applied yet. Never fatal:
+      // the message itself is already stored.
+      console.warn('[webhook] opt-out update skipped:', error.message)
+    }
+  } catch (err) {
+    console.error('[webhook] applyOptKeyword failed:', err)
+  }
+}
+
 /**
  * Resolve a Meta-side message_id into the matching internal UUID, scoped
  * to one conversation. Returns null when we never received the parent
@@ -856,6 +883,15 @@ async function processMessage(
   // so the broadcast's `replied_count` advances (via the aggregate
   // trigger installed in migration 003).
   await flagBroadcastReplyIfAny(accountId, contactRecord.id)
+
+  // Marketing opt-out (migration 043): an exact STOP / UNSUBSCRIBE marks
+  // the contact so broadcasts skip them; START / SUBSCRIBE opts back in.
+  // Only plain text counts — a button tap or caption never unsubscribes.
+  // Flows and automations still run, so an account can send its own
+  // confirmation reply.
+  if (message.type === 'text') {
+    await applyOptKeyword(accountId, contactRecord.id, message.text?.body)
+  }
 
   // ============================================================
   // Flow runner dispatch.
