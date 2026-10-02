@@ -27,6 +27,7 @@
     "pipelines": "Pipelines",
     "broadcasts": "Broadcasts",
     "automations": "Automations",
+    "analytics": "Analytics",
     "flows": "Flows",
     "aiAgents": "AI Agents",
     "settings": "Settings",
@@ -52,6 +53,7 @@
     "pipelines": "Pipelines",
     "broadcasts": "Broadcasts",
     "automations": "Automations",
+    "analytics": "Analytics",
     "settings": "Settings",
     "openMenu": "Open menu",
     "openAccountMenu": "Open account menu",
@@ -82,13 +84,18 @@
       "newTodayVsYesterday": "new today vs yesterday",
       "vsYesterday": "vs yesterday",
       "openDeals": "{count} open {count, plural, =1 {deal} other {deals}}",
-      "noChange": "No change {suffix}"
+      "noChange": "No change {suffix}",
+      "newCampaign": "New Campaign"
     },
     "quickActions": {
       "newContact": "New Contact",
       "newDeal": "New Deal",
       "newBroadcast": "New Broadcast",
-      "newAutomation": "New Automation"
+      "newAutomation": "New Automation",
+      "importContacts": "Import Contacts",
+      "newTemplate": "New Template",
+      "buildFlow": "Build Flow",
+      "viewReports": "View Reports"
     },
     "activityFeed": {
       "title": "Recent Activity",
@@ -134,6 +141,142 @@
     },
     "emptyState": {
       "title": "Not enough data yet"
+    },
+    "overview": {
+      "totalContacts": "Total Contacts",
+      "totalMessages": "Total Messages",
+      "messagesSent": "Messages Sent",
+      "messagesDelivered": "Messages Delivered",
+      "messagesRead": "Messages Read",
+      "messagesFailed": "Messages Failed",
+      "todaysMessages": "Today's Messages",
+      "totalCampaigns": "Total Campaigns",
+      "deliveryRate": "Delivery Rate",
+      "readRate": "Read Rate",
+      "monthlyGrowth": "Monthly Growth",
+      "ofMessages": "{part} of {total} messages",
+      "monthCompare": "{current} new contacts this month vs {previous} last month",
+      "new": "New",
+      "contactGrowth": "Contact Growth",
+      "contactGrowthDesc": "New contacts this week vs last week",
+      "weekCompare": "{previous} last week",
+      "campaignOverview": "Campaign Overview",
+      "campaignOverviewDesc": "Broadcast campaigns and approved templates",
+      "campaigns": "Campaigns",
+      "approvedTemplates": "Approved templates"
+    },
+    "messageAnalytics": {
+      "title": "Message Analytics",
+      "description": "Sent, delivered, read and replied messages",
+      "today": "Today",
+      "days7": "7 Days",
+      "days30": "30 Days",
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "read": "Read",
+      "replied": "Replied",
+      "empty": "No messages in this range",
+      "emptyHint": "Send or receive WhatsApp messages to populate this chart.",
+      "ariaLabel": "Message analytics over time"
+    },
+    "apiStatus": {
+      "title": "WhatsApp API Status",
+      "description": "Cloud API connection health",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "notConfigured": "Not configured",
+      "phone": "Phone number",
+      "quality": "Quality rating",
+      "tier": "Messaging tier",
+      "sentToday": "Sent today",
+      "unknown": "Unknown",
+      "unlimited": "Unlimited",
+      "perDay": "{value} / day",
+      "qualityHigh": "High",
+      "qualityMedium": "Medium",
+      "qualityLow": "Low",
+      "configure": "Configure WhatsApp"
+    }
+  },
+  "Analytics": {
+    "title": "Analytics",
+    "description": "Message delivery, engagement and campaign performance.",
+    "export": "Export",
+    "retry": "Retry",
+    "loadError": "Couldn't load analytics. Please try again.",
+    "range": {
+      "days7": "7 Days",
+      "days30": "30 Days",
+      "months3": "3 Months"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "messages": "Messages",
+      "campaigns": "Campaigns"
+    },
+    "kpi": {
+      "totalMessages": "Total Messages",
+      "deliveryRate": "Delivery Rate",
+      "readRate": "Read Rate",
+      "replyRate": "Reply Rate",
+      "failureRate": "Failure Rate"
+    },
+    "ofOutbound": "{part} of {total} sent",
+    "inOut": "{outbound} outbound · {inbound} inbound",
+    "replies": "{count, plural, =1 {# reply} other {# replies}} received",
+    "performanceTitle": "Message Delivery & Read Performance",
+    "performanceDesc": "Outbound messages per day by status",
+    "summaryTitle": "Summary",
+    "summaryDesc": "Campaigns and reach in this period",
+    "summary": {
+      "activeCampaigns": "Active Campaigns",
+      "totalCampaigns": "Total Campaigns",
+      "uniqueContacts": "Unique Contacts",
+      "totalRecipients": "Total Recipients"
+    },
+    "series": {
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "read": "Read",
+      "inbound": "Inbound",
+      "outbound": "Outbound"
+    },
+    "noMessages": "No messages in this period",
+    "noMessagesHint": "Send or receive WhatsApp messages to see analytics here.",
+    "directionTitle": "Inbound vs Outbound",
+    "directionDesc": "Messages per day by direction",
+    "contentTypesTitle": "Message Types",
+    "contentTypesDesc": "Breakdown by content type",
+    "contentType": {
+      "text": "Text",
+      "image": "Image",
+      "document": "Document",
+      "audio": "Audio",
+      "video": "Video",
+      "location": "Location",
+      "template": "Template",
+      "interactive": "Interactive"
+    },
+    "failuresTitle": "Top Failure Reasons",
+    "failuresDesc": "Most common errors reported by WhatsApp",
+    "noFailures": "No failed messages",
+    "noFailuresHint": "Every outbound message in this period went through.",
+    "unknownReason": "Unknown reason",
+    "errorCode": "Error code {code}",
+    "noCode": "No error code reported",
+    "noCampaigns": "No campaigns in this period",
+    "noCampaignsHint": "Create a broadcast to see its performance here.",
+    "table": {
+      "campaign": "Campaign",
+      "recipients": "Recipients",
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "read": "Read",
+      "replied": "Replied",
+      "failed": "Failed",
+      "deliveryPct": "Delivery %",
+      "readPct": "Read %",
+      "created": "Created"
     }
   },
   "Inbox": {
@@ -405,9 +548,9 @@
         "custom": "Custom Fields",
         "deals": "Deals",
         "tags": "Tags",
-      "noTags": "No tags",
-      "noDeals": "No deals",
-      "addNotePlaceholder": "Add a note..."
+        "noTags": "No tags",
+        "noDeals": "No deals",
+        "addNotePlaceholder": "Add a note..."
       },
       "actions": {
         "edit": "Edit",
@@ -1463,13 +1606,11 @@
       "deleteLocallyAria": "Delete template locally",
       "deleteMetaLocallyTitle": "Delete from Meta and locally",
       "deleteLocallyTitle": "Delete locally",
-      
       "dialogEditTitle": "Edit Message Template",
       "dialogNewTitle": "New Message Template",
       "dialogEditDesc": "Save your changes to re-submit to Meta. Status will flip back to PENDING during review.",
       "dialogNewDesc": "Build a template and submit it to Meta for approval. Once approved, you can use it in broadcasts and the inbox.",
       "authWarning": "AUTHENTICATION templates have a fixed body + OTP button shape that needs a different builder. Create them in Meta WhatsApp Manager for now and use <bold>Sync from Meta</bold> to bring them in.",
-      
       "templateName": "Template Name",
       "namePlaceholder": "e.g. order_confirmation",
       "nameFixed": "Name is fixed once a template exists on Meta — create a new template to change it.",
@@ -1478,7 +1619,6 @@
       "language": "Language",
       "langFixed": "Language is fixed once a template exists on Meta.",
       "langHint": "Must match the exact code on Meta — <code>en_US</code> and <code>en</code> are distinct.",
-      
       "header": "Header",
       "headerNone": "None",
       "headerText": "Text",
@@ -1488,7 +1628,6 @@
       "headerTextPlaceholder": "Header text (max 60 chars, optional {{1}})",
       "headerSampleAria": "Sample value for header variable",
       "headerSamplePlaceholder": "Sample value for {{1}} (required for Meta review)",
-      
       "uploadImage": "Upload image",
       "uploadVideo": "Upload video",
       "uploadDocument": "Upload document",
@@ -1500,17 +1639,14 @@
       "mediaHint": "Upload a file or paste a public HTTPS link — we upload it to Meta for review automatically.",
       "videoHint": " MP4 or 3GPP, ≤16 MB, ≤60 seconds recommended.",
       "documentHint": " PDF, Word, PowerPoint, Excel or text, ≤100 MB via link (≤16 MB when uploaded here).",
-      
       "bodyText": "Body Text",
       "bodyPlaceholder": "Hello {{1}}, your order {{2}} is confirmed.",
       "bodyHint": "Use {{1}}, {{2}} for variables (must be contiguous starting at {{1}}).",
       "sampleValues": "Sample values (Meta uses these to review your template)",
       "sampleAria": "Sample value for body variable {var}",
       "samplePlaceholder": "Sample for {var}",
-      
       "footer": "Footer (optional)",
       "footerPlaceholder": "Optional footer text (max 60 chars)",
-      
       "buttons": "Buttons (optional)",
       "addButton": "Add Button",
       "buttonsLimit": "Up to {max} buttons. QUICK_REPLY buttons must come before URL / phone / copy-code buttons.",
@@ -1523,19 +1659,16 @@
       "urlSamplePlaceholder": "Example value for {{1}} (required when URL has a variable)",
       "phonePlaceholder": "+15551234567",
       "codePlaceholder": "Example code (e.g. SUMMER20)",
-      
       "cancel": "Cancel",
       "saving": "Saving…",
       "submitting": "Submitting…",
       "saveResubmit": "Save & Resubmit",
       "submitApproval": "Submit for Approval",
-      
       "deleteDialogTitle": "Delete template?",
       "deleteMetaDesc": "\"{name}\" will be deleted from Meta and from Speedy Way CRM. Active broadcasts using this template will start failing on their next send. This can't be undone.",
       "deleteLocalDesc": "\"{name}\" will be deleted from Speedy Way CRM. It was never submitted to Meta, so no remote cleanup is needed.",
       "deleting": "Deleting…",
       "delete": "Delete",
-      
       "toastLoadFailed": "Failed to load templates",
       "toastSubmitFailed": "Failed to submit",
       "toastSubmitEditSuccess": "Edit submitted — Meta typically reviews within 24 hours.",
@@ -1717,7 +1850,6 @@
       "profileSaved": "Profile saved",
       "emailChangeFailed": "Email change failed: {message}",
       "profileSavedEmailCheck": "Profile saved — check your email to confirm the address change",
-      
       "passwordTitle": "Password",
       "passwordDesc": "Use at least {min} characters. You will stay signed in on this device after changing it.",
       "currentPassword": "Current password",
@@ -1731,7 +1863,6 @@
       "currentPasswordIncorrect": "Current password is incorrect",
       "passwordUpdateFailed": "Password update failed: {message}",
       "passwordUpdated": "Password updated",
-      
       "sessionsTitle": "Active sessions",
       "sessionsDesc": "Sign out of every device where you're logged in — including this one. Useful if you lost a laptop or shared your password.",
       "signOutAll": "Sign out of all devices",

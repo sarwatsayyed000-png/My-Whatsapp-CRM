@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
 import { formatCurrency } from '@/lib/currency'
@@ -9,6 +10,7 @@ import {
   UserPlus,
   DollarSign,
   Send,
+  Plus,
 } from 'lucide-react'
 
 import {
@@ -25,10 +27,20 @@ import type {
   PipelineDonutData,
   ResponseTimeSummary,
 } from '@/lib/dashboard/types'
+import {
+  loadDashboardOverview,
+  loadMessageSeries,
+  type DashboardOverview,
+  type MessageRange,
+} from '@/lib/analytics/queries'
+import type { SeriesPoint } from '@/lib/analytics/calculations'
 
 import { MetricCard } from '@/components/dashboard/metric-card'
 import { SkeletonCard } from '@/components/dashboard/skeleton'
-import { QuickActions } from '@/components/dashboard/quick-actions'
+import { QuickActions, ShortcutActions } from '@/components/dashboard/quick-actions'
+import { GrowthAndCampaigns, MessagingStats } from '@/components/dashboard/messaging-overview'
+import { MessageAnalyticsChart } from '@/components/dashboard/message-analytics-chart'
+import { WhatsAppStatusCard } from '@/components/dashboard/whatsapp-status-card'
 import { ConversationsChart } from '@/components/dashboard/conversations-chart'
 import { PipelineDonut } from '@/components/dashboard/pipeline-donut'
 import { ResponseTimeChart } from '@/components/dashboard/response-time-chart'
@@ -64,8 +76,29 @@ export default function DashboardPage() {
   const [activity, setActivity] = useState<ActivityItem[] | null>(null)
   const [activityLoading, setActivityLoading] = useState(true)
 
+  const [overview, setOverview] = useState<DashboardOverview | null>(null)
+  const [overviewLoading, setOverviewLoading] = useState(true)
+
+  const [msgRange, setMsgRange] = useState<MessageRange>(7)
+  const [msgSeries, setMsgSeries] = useState<Record<MessageRange, SeriesPoint[] | null>>({
+    1: null,
+    7: null,
+    30: null,
+  })
+  const [msgSeriesLoading, setMsgSeriesLoading] = useState(true)
+
   const loadAll = useCallback(() => {
     const db = createClient()
+
+    void loadDashboardOverview(db)
+      .then((o) => setOverview(o))
+      .catch((err) => console.error('[dashboard] overview failed:', err))
+      .finally(() => setOverviewLoading(false))
+
+    void loadMessageSeries(db, 7)
+      .then((s) => setMsgSeries((prev) => ({ ...prev, 7: s })))
+      .catch((err) => console.error('[dashboard] message series failed:', err))
+      .finally(() => setMsgSeriesLoading(false))
 
     // Kick everything off in parallel. Each block has its own
     // setState + finally so a slow query doesn't hold up faster
@@ -121,14 +154,65 @@ export default function DashboardPage() {
     [series],
   )
 
+  const handleMsgRangeChange = useCallback(
+    (r: MessageRange) => {
+      setMsgRange(r)
+      if (msgSeries[r] !== null) return
+      setMsgSeriesLoading(true)
+      loadMessageSeries(createClient(), r)
+        .then((s) => setMsgSeries((prev) => ({ ...prev, [r]: s })))
+        .catch((err) => console.error('[dashboard] message series failed:', err))
+        .finally(() => setMsgSeriesLoading(false))
+    },
+    [msgSeries],
+  )
+
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t('description')}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t('description')}
+          </p>
+        </div>
+        <Link
+          href="/broadcasts/new"
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+        >
+          <Plus className="h-4 w-4" />
+          {t('newCampaign')}
+        </Link>
+      </div>
+
+      {/* Messaging overview: stat cards + rate cards */}
+      <MessagingStats data={overview} loading={overviewLoading} />
+
+      {/* Message analytics + growth / campaigns */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="h-full lg:col-span-2">
+          <MessageAnalyticsChart
+            series={msgSeries}
+            loading={msgSeriesLoading}
+            range={msgRange}
+            onRangeChange={handleMsgRangeChange}
+          />
+        </div>
+        <div className="h-full">
+          <GrowthAndCampaigns data={overview} loading={overviewLoading} />
+        </div>
+      </div>
+
+      {/* API status + shortcuts */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="h-full">
+          <WhatsAppStatusCard sentToday={overview ? overview.sentToday : null} />
+        </div>
+        <div className="flex flex-col justify-center gap-3 lg:col-span-2">
+          <ShortcutActions />
+          <QuickActions />
+        </div>
       </div>
 
       {/* Metric cards */}
@@ -187,9 +271,6 @@ export default function DashboardPage() {
           </>
         )}
       </div>
-
-      {/* Quick actions */}
-      <QuickActions />
 
       {/* Charts row */}
       {/* items-stretch (the grid default) stretches the two columns to
