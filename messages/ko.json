@@ -26,6 +26,7 @@
     "contacts": "연락처",
     "pipelines": "파이프라인",
     "broadcasts": "브로드캐스트",
+    "templates": "템플릿",
     "automations": "자동화",
     "analytics": "분석",
     "flows": "플로우",
@@ -52,6 +53,7 @@
     "contacts": "연락처",
     "pipelines": "파이프라인",
     "broadcasts": "브로드캐스트",
+    "templates": "템플릿",
     "automations": "자동화",
     "analytics": "분석",
     "settings": "설정",
@@ -277,6 +279,44 @@
       "deliveryPct": "전달 %",
       "readPct": "읽음 %",
       "created": "생성일"
+    }
+  },
+  "Templates": {
+    "title": "템플릿",
+    "description": "WhatsApp 메시지 템플릿을 만들고 미리 보고 관리하세요.",
+    "statusFilterLabel": "상태로 필터",
+    "categoryFilterLabel": "카테고리로 필터",
+    "searchPlaceholder": "템플릿 검색…",
+    "allCategories": "모든 카테고리",
+    "noMatches": "필터와 일치하는 템플릿이 없습니다",
+    "noMatchesHint": "다른 검색어나 상태를 선택해 보세요.",
+    "clearFilters": "필터 지우기",
+    "previewAction": "미리보기",
+    "duplicateAction": "복제",
+    "livePreview": "실시간 미리보기",
+    "previewHint": "예시 값이 {{n}} 변수를 채웁니다. 강조된 자리표시자에는 아직 예시가 필요합니다.",
+    "status": {
+      "all": "전체",
+      "approved": "승인됨",
+      "pending": "대기 중",
+      "rejected": "거부됨",
+      "draft": "초안",
+      "inactive": "일시중지 / 비활성"
+    },
+    "preview": {
+      "ariaLabel": "템플릿 미리보기",
+      "emptyBody": "메시지 본문이 여기에 표시됩니다",
+      "buttonPlaceholder": "버튼",
+      "media": {
+        "image": "이미지 헤더",
+        "video": "동영상 헤더",
+        "document": "문서 헤더"
+      }
+    },
+    "moved": {
+      "title": "메시지 템플릿",
+      "description": "템플릿은 이제 사이드바에 별도 페이지가 있습니다.",
+      "cta": "템플릿 열기"
     }
   },
   "Inbox": {

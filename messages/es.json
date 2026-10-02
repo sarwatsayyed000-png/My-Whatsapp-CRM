@@ -26,6 +26,7 @@
     "contacts": "Contactos",
     "pipelines": "Pipelines",
     "broadcasts": "Difusiones",
+    "templates": "Plantillas",
     "automations": "Automatizaciones",
     "analytics": "Analíticas",
     "flows": "Flujos",
@@ -52,6 +53,7 @@
     "contacts": "Contactos",
     "pipelines": "Pipelines",
     "broadcasts": "Difusiones",
+    "templates": "Plantillas",
     "automations": "Automatizaciones",
     "analytics": "Analíticas",
     "settings": "Configuración",
@@ -277,6 +279,44 @@
       "deliveryPct": "% entrega",
       "readPct": "% lectura",
       "created": "Creada"
+    }
+  },
+  "Templates": {
+    "title": "Plantillas",
+    "description": "Crea, previsualiza y gestiona tus plantillas de mensajes de WhatsApp.",
+    "statusFilterLabel": "Filtrar por estado",
+    "categoryFilterLabel": "Filtrar por categoría",
+    "searchPlaceholder": "Buscar plantillas…",
+    "allCategories": "Todas las categorías",
+    "noMatches": "Ninguna plantilla coincide con los filtros",
+    "noMatchesHint": "Prueba otra búsqueda u otro estado.",
+    "clearFilters": "Limpiar filtros",
+    "previewAction": "Vista previa",
+    "duplicateAction": "Duplicar",
+    "livePreview": "Vista previa en vivo",
+    "previewHint": "Los valores de ejemplo rellenan las variables {{n}}. Los marcadores resaltados aún necesitan un ejemplo.",
+    "status": {
+      "all": "Todas",
+      "approved": "Aprobadas",
+      "pending": "Pendientes",
+      "rejected": "Rechazadas",
+      "draft": "Borradores",
+      "inactive": "Pausadas / desactivadas"
+    },
+    "preview": {
+      "ariaLabel": "Vista previa de la plantilla",
+      "emptyBody": "El cuerpo del mensaje aparecerá aquí",
+      "buttonPlaceholder": "Botón",
+      "media": {
+        "image": "Encabezado de imagen",
+        "video": "Encabezado de video",
+        "document": "Encabezado de documento"
+      }
+    },
+    "moved": {
+      "title": "Plantillas de mensajes",
+      "description": "Las plantillas ahora tienen su propia página en la barra lateral.",
+      "cta": "Abrir Plantillas"
     }
   },
   "Inbox": {

@@ -232,7 +232,7 @@ export function GrowthAndCampaigns({
             </p>
           </Link>
           <Link
-            href="/settings?tab=templates"
+            href="/templates"
             className="rounded-lg bg-muted/50 p-3 transition-colors hover:bg-muted"
           >
             <p className="text-xl font-bold tabular-nums text-foreground">{fmt(data.approvedTemplates)}</p>
