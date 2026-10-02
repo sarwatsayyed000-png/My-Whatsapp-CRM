@@ -16,6 +16,7 @@ import type {
   ResponseTimeBucket,
   ResponseTimeSummary,
 } from './types'
+import { pairResponseSamples } from './response-time'
 
 // ------------------------------------------------------------
 // All client-side aggregation. RLS scopes every query to the
@@ -190,31 +191,10 @@ export async function loadResponseTime(db: DB): Promise<ResponseTimeSummary> {
     created_at: string
   }[]
 
-  // Group per conversation, pair unreplied customer messages with the
-  // next outbound message from the agent/bot. A single customer message
-  // can only count once (avoids inflating averages if the customer
-  // double-messages while the agent takes time to reply).
-  interface Sample {
-    customerAt: Date
-    responseAt: Date
-  }
-  const samples: Sample[] = []
-
-  let currentConv = ''
-  let pendingCustomer: Date | null = null
-  for (const row of rows) {
-    if (row.conversation_id !== currentConv) {
-      currentConv = row.conversation_id
-      pendingCustomer = null
-    }
-    const ts = new Date(row.created_at)
-    if (row.sender_type === 'customer') {
-      if (!pendingCustomer) pendingCustomer = ts
-    } else if (pendingCustomer) {
-      samples.push({ customerAt: pendingCustomer, responseAt: ts })
-      pendingCustomer = null
-    }
-  }
+  // Pair unreplied customer messages with the next outbound message
+  // from the agent/bot (shared with the CRM leaderboard). A single
+  // customer message can only count once.
+  const samples = pairResponseSamples(rows)
 
   const now = new Date()
   const thisWeekStart = daysAgoStart(mondayIndex(now))

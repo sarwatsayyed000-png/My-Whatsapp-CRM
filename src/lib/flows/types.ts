@@ -339,6 +339,13 @@ export interface DispatchInboundInput {
   contactId: string;
   conversationId: string;
   message: ParsedInbound;
+  /**
+   * Lead qualification (CRM & Deals, migration 044): when set and the
+   * contact has no active run, start THIS flow instead of matching
+   * entry triggers. Must belong to `accountId` and not be archived;
+   * otherwise dispatch falls back to normal trigger matching.
+   */
+  forceEntryFlowId?: string | null;
 }
 
 export interface DispatchInboundResult {

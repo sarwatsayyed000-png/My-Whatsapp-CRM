@@ -380,6 +380,23 @@ async function findEntryFlow(
   return null;
 }
 
+/**
+ * Load the account's lead-qualification flow by id. Tenancy is
+ * enforced here (service-role client bypasses RLS) and archived flows
+ * never start; drafts are allowed so a qualification bot can be kept
+ * out of keyword matching while still running for new chats.
+ */
+async function loadForcedFlow(
+  db: AdminClient,
+  accountId: string,
+  flowId: string,
+): Promise<FlowRow | null> {
+  const flow = await loadFlow(db, flowId);
+  if (!flow || flow.account_id !== accountId) return null;
+  if (flow.status === "archived" || !flow.entry_node_id) return null;
+  return flow;
+}
+
 // ============================================================
 // Node executors — each handles ONE node type. send_buttons and
 // send_list also persist `last_prompt_message_id` so the inbox
@@ -952,13 +969,19 @@ export async function dispatchInboundToFlows(
       return handleReplyForActiveRun(db, activeRun, input.message, nodes);
     }
 
-    // No active run → look for a flow whose entry trigger matches.
-    const flow = await findEntryFlow(
-      db,
-      input.accountId,
-      input.message,
-      input.isFirstInboundMessage,
-    );
+    // No active run → a forced (lead-qualification) flow wins, else
+    // look for a flow whose entry trigger matches.
+    const forced = input.forceEntryFlowId
+      ? await loadForcedFlow(db, input.accountId, input.forceEntryFlowId)
+      : null;
+    const flow =
+      forced ??
+      (await findEntryFlow(
+        db,
+        input.accountId,
+        input.message,
+        input.isFirstInboundMessage,
+      ));
     if (!flow || !flow.entry_node_id) {
       return { consumed: false, outcome: "no_match" };
     }
