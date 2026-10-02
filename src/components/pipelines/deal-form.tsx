@@ -9,6 +9,7 @@ import type {
   Contact,
   Conversation,
   Deal,
+  DealFollowUp,
   DealStatus,
   PipelineStage,
   Profile,
@@ -30,6 +31,8 @@ import {
   MessageSquare,
   DollarSign,
   Loader2,
+  AlarmClock,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -42,6 +45,8 @@ interface DealFormProps {
   stages: PipelineStage[];
   defaultStageId?: string;
   onSaved: () => void;
+  /** Pending follow-ups for this deal, shown under the reminder field. */
+  followUps?: DealFollowUp[];
 }
 
 export function DealForm({
@@ -52,6 +57,7 @@ export function DealForm({
   stages,
   defaultStageId,
   onSaved,
+  followUps = [],
 }: DealFormProps) {
   const t = useTranslations("Pipelines.form");
   const supabase = createClient();
@@ -65,6 +71,9 @@ export function DealForm({
   const [assignedTo, setAssignedTo] = useState("");
   const [expectedCloseDate, setExpectedCloseDate] = useState("");
   const [notes, setNotes] = useState("");
+  // "Follow-up reminder" (datetime-local). Creates a deal_follow_ups
+  // row on save; the cron notifies the assigned agent when it's due.
+  const [reminderAt, setReminderAt] = useState("");
 
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -83,6 +92,7 @@ export function DealForm({
   useEffect(() => {
     if (!open) return;
     setConfirmDelete(false);
+    setReminderAt("");
     if (deal) {
       setTitle(deal.title);
       setValue(String(deal.value ?? ""));
@@ -114,7 +124,11 @@ export function DealForm({
     (async () => {
       const [c, p] = await Promise.all([
         supabase.from("contacts").select("*").order("name"),
-        supabase.from("profiles").select("*").order("full_name"),
+        supabase
+          .from("profiles")
+          .select("*")
+          .neq("account_role", "viewer")
+          .order("full_name"),
       ]);
       if (cancelled) return;
       setContacts((c.data ?? []) as Contact[]);
@@ -163,6 +177,9 @@ export function DealForm({
       value: parseFloat(value) || 0,
       currency,
       contact_id: contactId,
+      // Link the contact's conversation so "Open chat" and cadence
+      // sends know where to go.
+      conversation_id: linkedConversation?.id ?? deal?.conversation_id ?? null,
       pipeline_id: pipelineId,
       stage_id: stageId,
       assigned_to: assignedTo || null,
@@ -170,6 +187,7 @@ export function DealForm({
       expected_close_date: expectedCloseDate || null,
     };
 
+    let savedDealId: string | null = null;
     if (deal) {
       const { error } = await supabase
         .from("deals")
@@ -180,6 +198,7 @@ export function DealForm({
         setSaving(false);
         return;
       }
+      savedDealId = deal.id;
     } else {
       const {
         data: { session },
@@ -195,13 +214,37 @@ export function DealForm({
         setSaving(false);
         return;
       }
-      const { error } = await supabase
+      const { data: created, error } = await supabase
         .from("deals")
-        .insert({ ...payload, user_id: user.id, account_id: accountId, status: "open" });
-      if (error) {
+        .insert({ ...payload, user_id: user.id, account_id: accountId, status: "open" })
+        .select("id")
+        .single();
+      if (error || !created) {
         toast.error(t("toastFailedCreate"));
         setSaving(false);
         return;
+      }
+      savedDealId = created.id as string;
+    }
+
+    if (reminderAt && savedDealId) {
+      const due = new Date(reminderAt);
+      if (!Number.isNaN(due.getTime())) {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        const { error: fuErr } = await supabase.from("deal_follow_ups").insert({
+          // Overwritten from the deal by a DB trigger (tenancy).
+          account_id: accountId,
+          deal_id: savedDealId,
+          due_at: due.toISOString(),
+          channel: "whatsapp",
+          note: t("reminderNote"),
+          assigned_to: assignedTo || null,
+          is_automated: false,
+          created_by: session?.user.id ?? null,
+        });
+        if (fuErr) toast.error(t("toastReminderFailed"));
       }
     }
 
@@ -286,7 +329,7 @@ export function DealForm({
 
               {linkedConversation && (
                 <Link
-                  href="/inbox"
+                  href={`/inbox?c=${linkedConversation.id}`}
                   className="mt-1 inline-flex items-center gap-1.5 self-start rounded-md bg-primary/10 px-2 py-1 text-xs text-primary hover:bg-primary/20"
                 >
                   <MessageSquare className="h-3 w-3" />
@@ -364,6 +407,43 @@ export function DealForm({
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="grid min-w-0 gap-2">
+              <Label className="flex items-center gap-1.5 text-muted-foreground">
+                <AlarmClock className="h-3.5 w-3.5" />
+                {t("followUpReminder")}
+              </Label>
+              <Input
+                type="datetime-local"
+                value={reminderAt}
+                onChange={(e) => setReminderAt(e.target.value)}
+                className="w-full min-w-0 border-border bg-muted text-foreground"
+              />
+              <p className="text-[11px] text-muted-foreground">{t("followUpReminderHint")}</p>
+              {deal && followUps.length > 0 && (
+                <ul className="min-w-0 space-y-1">
+                  {followUps.map((f) => {
+                    const late = new Date(f.due_at) < new Date();
+                    return (
+                      <li
+                        key={f.id}
+                        className={`flex min-w-0 items-center gap-2 rounded-md border px-2 py-1 text-xs ${
+                          late
+                            ? "border-red-500/30 bg-red-500/5 text-red-600 dark:text-red-400"
+                            : "border-border bg-muted/50 text-muted-foreground"
+                        }`}
+                      >
+                        <CheckCircle2 className="h-3 w-3 shrink-0" />
+                        <span className="min-w-0 truncate">
+                          {new Date(f.due_at).toLocaleString()}
+                          {f.is_automated && f.template_name ? ` · ${f.template_name}` : f.note ? ` · ${f.note}` : ""}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
 
             <div className="grid gap-2">

@@ -140,3 +140,12 @@ export function resolveTemplateParams(
     return out.trim() === "" ? "-" : out;
   });
 }
+
+/** Number of positional `{{n}}` variables a template body expects. */
+export function countTemplateVariables(body: string | null | undefined): number {
+  let max = 0;
+  for (const m of (body ?? "").matchAll(/\{\{\s*(\d+)\s*\}\}/g)) {
+    max = Math.max(max, Number(m[1]));
+  }
+  return max;
+}

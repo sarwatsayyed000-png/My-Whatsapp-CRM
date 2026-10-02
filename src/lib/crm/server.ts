@@ -435,19 +435,30 @@ async function dispatchAutomatedFollowUps(db: DB, now: Date, result: CrmCronResu
     .limit(50);
   if (error) throw error;
 
+  // Release claims left by a crashed run (older than 10 minutes) so
+  // those rows are retried.
   const staleIso = new Date(now.getTime() - CLAIM_STALE_MS).toISOString();
+  await db
+    .from("deal_follow_ups")
+    .update({ completed_at: null })
+    .eq("status", "pending")
+    .eq("is_automated", true)
+    .lt("completed_at", staleIso);
+
   for (const row of (due ?? []) as DueRow[]) {
     // Claim: completed_at doubles as a short-lived lock so overlapping
-    // cron runs never double-send. A claim older than 10 minutes (a
-    // crashed run) can be re-taken.
-    const { data: claim } = await db
+    // cron runs never double-send. Plain filters only — PostgREST
+    // re-applies an `or=` filter to the returned row, which would hide
+    // a successful claim.
+    const { data: claim, error: claimErr } = await db
       .from("deal_follow_ups")
       .update({ completed_at: nowIso })
       .eq("id", row.id)
       .eq("status", "pending")
-      .or(`completed_at.is.null,completed_at.lt.${staleIso}`)
+      .is("completed_at", null)
       .select("id")
       .maybeSingle();
+    if (claimErr) log("claim follow-up failed", claimErr);
     if (!claim) continue;
 
     const finish = (patch: Record<string, unknown>) =>
@@ -488,7 +499,7 @@ async function sendOneAutomated(
       .maybeSingle(),
     db
       .from("follow_up_cadences")
-      .select("id, account_id, stop_when, is_active, trigger_stage_id, created_by")
+      .select("id, account_id, name, stop_when, is_active, trigger_stage_id, created_by")
       .eq("id", row.cadence_id)
       .maybeSingle(),
     db
@@ -568,7 +579,7 @@ async function sendOneAutomated(
       is_automated: true,
       cadence_id: cadence.id,
       cadence_step_position: next.position,
-      note: null,
+      note: (cadence.name as string | null) ?? null,
     });
     // 23505 = a pending row for this cadence already exists (a fresh
     // stage entry re-started the sequence) — that one wins.

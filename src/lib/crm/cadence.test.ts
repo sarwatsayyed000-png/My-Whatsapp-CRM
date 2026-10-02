@@ -4,6 +4,7 @@ import {
   addDelay,
   cadenceStopReason,
   cadenceTimeline,
+  countTemplateVariables,
   nextCadenceStep,
   resolveTemplateParams,
   stopsOnReply,
@@ -123,5 +124,14 @@ describe("resolveTemplateParams", () => {
   it("leaves unknown tokens untouched and tolerates non-array input", () => {
     expect(resolveTemplateParams(["{{foo.bar}}"], {})).toEqual(["{{foo.bar}}"]);
     expect(resolveTemplateParams(null, {})).toEqual([]);
+  });
+});
+
+describe("countTemplateVariables", () => {
+  it("returns the highest positional placeholder", () => {
+    expect(countTemplateVariables("Hi {{1}}, your {{2}} visa is ready")).toBe(2);
+    expect(countTemplateVariables("Hi {{ 3 }} and {{1}}")).toBe(3);
+    expect(countTemplateVariables("No variables")).toBe(0);
+    expect(countTemplateVariables(null)).toBe(0);
   });
 });

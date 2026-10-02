@@ -28,7 +28,13 @@ interface PipelineBoardProps {
   onDealMoved: (dealId: string, newStageId: string) => void;
   onAddDeal: (stageId: string) => void;
   onEditDeal: (deal: Deal) => void;
+  /** Deals with a pending follow-up that is past due (red badge). */
+  overdueDealIds?: Set<string>;
+  /** Hide quick-add for read-only roles. */
+  canCreate?: boolean;
 }
+
+const NO_OVERDUE = new Set<string>();
 
 export function PipelineBoard({
   stages,
@@ -36,6 +42,8 @@ export function PipelineBoard({
   onDealMoved,
   onAddDeal,
   onEditDeal,
+  overdueDealIds = NO_OVERDUE,
+  canCreate = true,
 }: PipelineBoardProps) {
   const { defaultCurrency } = useAuth();
   const [activeDealId, setActiveDealId] = useState<string | null>(null);
@@ -119,6 +127,8 @@ export function PipelineBoard({
               currency={defaultCurrency}
               onAddDeal={onAddDeal}
               onEditDeal={onEditDeal}
+              overdueDealIds={overdueDealIds}
+              canCreate={canCreate}
             />
           );
         })}
@@ -138,6 +148,7 @@ export function PipelineBoard({
                 sortedStages.find((s) => s.id === activeDeal.stage_id) ?? null
               }
               onEdit={() => {}}
+              overdue={overdueDealIds.has(activeDeal.id)}
               isOverlay
             />
           </div>
@@ -193,6 +204,8 @@ function StageColumn({
   currency,
   onAddDeal,
   onEditDeal,
+  overdueDealIds,
+  canCreate,
 }: {
   stage: PipelineStage;
   deals: Deal[];
@@ -200,6 +213,8 @@ function StageColumn({
   currency: string;
   onAddDeal: (stageId: string) => void;
   onEditDeal: (deal: Deal) => void;
+  overdueDealIds: Set<string>;
+  canCreate: boolean;
 }) {
   const t = useTranslations("Pipelines.board");
   const { setNodeRef, isOver } = useDroppable({ id: stage.id });
@@ -209,37 +224,46 @@ function StageColumn({
     // so the next column's edge peeks in — a "there's more here" hint.
     // snap-start lands each column cleanly when swiping. On lg+ we
     // restore the flex-1 share-the-row behavior. The droppable ref is
-    // on the inner messages region below — intentionally NOT here, so
+    // on the inner deals region below — intentionally NOT here, so
     // a drag over the column header doesn't highlight the whole column.
-    <div className="flex w-[85vw] min-w-[260px] max-w-[320px] shrink-0 snap-start flex-col rounded-xl border border-border bg-card/60 p-4 lg:w-auto lg:max-w-none lg:flex-1 lg:basis-[260px] lg:shrink lg:snap-none">
-      {/* 3px colored top border — sits above the column's padding */}
-      <div
-        className="-mx-4 -mt-4 h-[3px] rounded-t-xl"
-        style={{ backgroundColor: stage.color }}
-      />
-      <div className="flex items-center justify-between pt-3">
-        <h3 className="truncate text-sm font-semibold text-foreground">
-          {stage.name}
-        </h3>
-        <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
-          {deals.length}
-        </span>
+    <div className="flex w-[85vw] min-w-[260px] max-w-[320px] shrink-0 snap-start flex-col rounded-xl border border-border bg-card/60 p-3 lg:w-auto lg:max-w-none lg:flex-1 lg:basis-[260px] lg:shrink lg:snap-none">
+      <div className="flex items-center justify-between gap-2 px-1">
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            aria-hidden
+            className="h-2.5 w-2.5 shrink-0 rounded-full"
+            style={{ backgroundColor: stage.color }}
+          />
+          <h3 className="truncate text-sm font-semibold text-foreground">{stage.name}</h3>
+        </div>
+        {canCreate && (
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={t("quickAdd", { stage: stage.name })}
+            title={t("quickAdd", { stage: stage.name })}
+            onClick={() => onAddDeal(stage.id)}
+            className="h-7 w-7 shrink-0 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        )}
       </div>
-      <p className="text-xs text-muted-foreground">
-        {formatCurrency(totalValue, currency)}
+      <p className="px-1 text-xs text-muted-foreground tabular-nums">
+        {t("columnSummary", { total: formatCurrency(totalValue, currency), count: deals.length })}
       </p>
 
       <div
         ref={setNodeRef}
-        className={`mt-3 flex flex-1 flex-col gap-2 rounded-lg transition-all ${
+        className={`mt-3 flex min-h-[120px] flex-1 flex-col gap-2 rounded-lg transition-all ${
           isOver
             ? "bg-primary/5 outline outline-2 outline-dashed outline-primary outline-offset-2"
             : ""
         }`}
       >
         {deals.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center rounded-lg border-2 border-dashed border-border py-10 text-xs text-muted-foreground">
-            {t("dropDealHere")}
+          <div className="flex flex-1 items-start justify-center rounded-lg border-2 border-dashed border-border pb-10 pt-12 text-xs text-muted-foreground">
+            {t("dragDealsHere")}
           </div>
         ) : (
           deals.map((deal) => (
@@ -248,20 +272,11 @@ function StageColumn({
               deal={deal}
               stage={stage}
               onEdit={onEditDeal}
+              overdue={overdueDealIds.has(deal.id)}
             />
           ))
         )}
       </div>
-
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => onAddDeal(stage.id)}
-        className="mt-3 w-full justify-start border border-dashed border-border bg-transparent text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground"
-      >
-        <Plus className="mr-1 h-3 w-3" />
-        {t("addDeal")}
-      </Button>
     </div>
   );
 }
@@ -270,10 +285,12 @@ function DraggableDealCard({
   deal,
   stage,
   onEdit,
+  overdue,
 }: {
   deal: Deal;
   stage: PipelineStage;
   onEdit: (deal: Deal) => void;
+  overdue: boolean;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: deal.id,
@@ -286,7 +303,7 @@ function DraggableDealCard({
       {...attributes}
       style={{ opacity: isDragging ? 0.3 : 1, touchAction: "none" }}
     >
-      <DealCard deal={deal} stage={stage} onEdit={onEdit} />
+      <DealCard deal={deal} stage={stage} onEdit={onEdit} overdue={overdue} />
     </div>
   );
 }
