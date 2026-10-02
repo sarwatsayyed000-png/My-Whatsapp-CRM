@@ -19,14 +19,28 @@ interface MetricCardProps {
   }
   /** Used instead of `delta` when the metric has a static subtitle. */
   subtitle?: string
+  /** Tint for the icon tile, e.g. "bg-blue-500/10 text-blue-500". Defaults to muted. */
+  iconClassName?: string
 }
 
-export function MetricCard({ title, value, icon: Icon, delta, subtitle }: MetricCardProps) {
+export function MetricCard({
+  title,
+  value,
+  icon: Icon,
+  delta,
+  subtitle,
+  iconClassName,
+}: MetricCardProps) {
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <div className="flex items-start justify-between">
         <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+        <div
+          className={cn(
+            'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg',
+            iconClassName ?? 'bg-muted text-muted-foreground',
+          )}
+        >
           <Icon className="h-4 w-4" />
         </div>
       </div>

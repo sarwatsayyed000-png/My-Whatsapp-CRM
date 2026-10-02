@@ -27,6 +27,7 @@
     "pipelines": "Pipelines",
     "broadcasts": "Difusiones",
     "automations": "Automatizaciones",
+    "analytics": "Analíticas",
     "flows": "Flujos",
     "aiAgents": "Agentes de IA",
     "settings": "Configuración",
@@ -52,6 +53,7 @@
     "pipelines": "Pipelines",
     "broadcasts": "Difusiones",
     "automations": "Automatizaciones",
+    "analytics": "Analíticas",
     "settings": "Configuración",
     "openMenu": "Abrir menú",
     "openAccountMenu": "Abrir menú de la cuenta",
@@ -82,13 +84,18 @@
       "newTodayVsYesterday": "nuevos hoy vs. ayer",
       "vsYesterday": "vs. ayer",
       "openDeals": "{count} {count, plural, =1 {negocio abierto} other {negocios abiertos}}",
-      "noChange": "Sin cambios {suffix}"
+      "noChange": "Sin cambios {suffix}",
+      "newCampaign": "Nueva campaña"
     },
     "quickActions": {
       "newContact": "Nuevo contacto",
       "newDeal": "Nuevo negocio",
       "newBroadcast": "Nueva difusión",
-      "newAutomation": "Nueva automatización"
+      "newAutomation": "Nueva automatización",
+      "importContacts": "Importar contactos",
+      "newTemplate": "Nueva plantilla",
+      "buildFlow": "Crear flujo",
+      "viewReports": "Ver informes"
     },
     "activityFeed": {
       "title": "Actividad reciente",
@@ -134,6 +141,142 @@
     },
     "emptyState": {
       "title": "Aún no hay datos suficientes"
+    },
+    "overview": {
+      "totalContacts": "Contactos totales",
+      "totalMessages": "Mensajes totales",
+      "messagesSent": "Mensajes enviados",
+      "messagesDelivered": "Mensajes entregados",
+      "messagesRead": "Mensajes leídos",
+      "messagesFailed": "Mensajes fallidos",
+      "todaysMessages": "Mensajes de hoy",
+      "totalCampaigns": "Campañas totales",
+      "deliveryRate": "Tasa de entrega",
+      "readRate": "Tasa de lectura",
+      "monthlyGrowth": "Crecimiento mensual",
+      "ofMessages": "{part} de {total} mensajes",
+      "monthCompare": "{current} contactos nuevos este mes vs {previous} el mes pasado",
+      "new": "Nuevo",
+      "contactGrowth": "Crecimiento de contactos",
+      "contactGrowthDesc": "Contactos nuevos esta semana vs la anterior",
+      "weekCompare": "{previous} la semana pasada",
+      "campaignOverview": "Resumen de campañas",
+      "campaignOverviewDesc": "Campañas de difusión y plantillas aprobadas",
+      "campaigns": "Campañas",
+      "approvedTemplates": "Plantillas aprobadas"
+    },
+    "messageAnalytics": {
+      "title": "Analíticas de mensajes",
+      "description": "Mensajes enviados, entregados, leídos y respondidos",
+      "today": "Hoy",
+      "days7": "7 días",
+      "days30": "30 días",
+      "sent": "Enviados",
+      "delivered": "Entregados",
+      "read": "Leídos",
+      "replied": "Respondidos",
+      "empty": "No hay mensajes en este rango",
+      "emptyHint": "Envía o recibe mensajes de WhatsApp para llenar este gráfico.",
+      "ariaLabel": "Analíticas de mensajes en el tiempo"
+    },
+    "apiStatus": {
+      "title": "Estado de la API de WhatsApp",
+      "description": "Salud de la conexión con Cloud API",
+      "connected": "Conectado",
+      "disconnected": "Desconectado",
+      "notConfigured": "Sin configurar",
+      "phone": "Número de teléfono",
+      "quality": "Calificación de calidad",
+      "tier": "Nivel de mensajería",
+      "sentToday": "Enviados hoy",
+      "unknown": "Desconocido",
+      "unlimited": "Ilimitado",
+      "perDay": "{value} / día",
+      "qualityHigh": "Alta",
+      "qualityMedium": "Media",
+      "qualityLow": "Baja",
+      "configure": "Configurar WhatsApp"
+    }
+  },
+  "Analytics": {
+    "title": "Analíticas",
+    "description": "Entrega de mensajes, interacción y rendimiento de campañas.",
+    "export": "Exportar",
+    "retry": "Reintentar",
+    "loadError": "No se pudieron cargar las analíticas. Inténtalo de nuevo.",
+    "range": {
+      "days7": "7 días",
+      "days30": "30 días",
+      "months3": "3 meses"
+    },
+    "tabs": {
+      "overview": "Resumen",
+      "messages": "Mensajes",
+      "campaigns": "Campañas"
+    },
+    "kpi": {
+      "totalMessages": "Mensajes totales",
+      "deliveryRate": "Tasa de entrega",
+      "readRate": "Tasa de lectura",
+      "replyRate": "Tasa de respuesta",
+      "failureRate": "Tasa de fallos"
+    },
+    "ofOutbound": "{part} de {total} enviados",
+    "inOut": "{outbound} salientes · {inbound} entrantes",
+    "replies": "{count, plural, =1 {# respuesta recibida} other {# respuestas recibidas}}",
+    "performanceTitle": "Rendimiento de entrega y lectura",
+    "performanceDesc": "Mensajes salientes por día según estado",
+    "summaryTitle": "Resumen",
+    "summaryDesc": "Campañas y alcance en este periodo",
+    "summary": {
+      "activeCampaigns": "Campañas activas",
+      "totalCampaigns": "Campañas totales",
+      "uniqueContacts": "Contactos únicos",
+      "totalRecipients": "Destinatarios totales"
+    },
+    "series": {
+      "sent": "Enviados",
+      "delivered": "Entregados",
+      "read": "Leídos",
+      "inbound": "Entrantes",
+      "outbound": "Salientes"
+    },
+    "noMessages": "No hay mensajes en este periodo",
+    "noMessagesHint": "Envía o recibe mensajes de WhatsApp para ver analíticas aquí.",
+    "directionTitle": "Entrantes vs salientes",
+    "directionDesc": "Mensajes por día según dirección",
+    "contentTypesTitle": "Tipos de mensaje",
+    "contentTypesDesc": "Desglose por tipo de contenido",
+    "contentType": {
+      "text": "Texto",
+      "image": "Imagen",
+      "document": "Documento",
+      "audio": "Audio",
+      "video": "Video",
+      "location": "Ubicación",
+      "template": "Plantilla",
+      "interactive": "Interactivo"
+    },
+    "failuresTitle": "Principales motivos de fallo",
+    "failuresDesc": "Errores más comunes reportados por WhatsApp",
+    "noFailures": "Sin mensajes fallidos",
+    "noFailuresHint": "Todos los mensajes salientes de este periodo se enviaron.",
+    "unknownReason": "Motivo desconocido",
+    "errorCode": "Código de error {code}",
+    "noCode": "Sin código de error",
+    "noCampaigns": "No hay campañas en este periodo",
+    "noCampaignsHint": "Crea una difusión para ver su rendimiento aquí.",
+    "table": {
+      "campaign": "Campaña",
+      "recipients": "Destinatarios",
+      "sent": "Enviados",
+      "delivered": "Entregados",
+      "read": "Leídos",
+      "replied": "Respondidos",
+      "failed": "Fallidos",
+      "deliveryPct": "% entrega",
+      "readPct": "% lectura",
+      "created": "Creada"
     }
   },
   "Inbox": {

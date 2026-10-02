@@ -105,6 +105,13 @@ html[data-mode="dark"] {
   --border: oklch(0.28 0.01 260);
   --input: oklch(0.28 0.01 260);
   --chart-2: oklch(0.556 0 0);
+  /* Message-funnel series (sent / delivered / read / replied). Steps
+   * from the validated categorical palette; dark steps re-validated
+   * against the dark card surface. */
+  --series-sent: #3987e5;
+  --series-delivered: #d95926;
+  --series-read: #199e70;
+  --series-replied: #c98500;
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
@@ -134,6 +141,10 @@ html[data-mode="light"] {
   --border: oklch(0.922 0.004 260);
   --input: oklch(0.922 0.004 260);
   --chart-2: oklch(0.6 0.1 260);
+  --series-sent: #2a78d6;
+  --series-delivered: #eb6834;
+  --series-read: #1baf7a;
+  --series-replied: #eda100;
   --chart-3: oklch(0.7 0.06 260);
   --chart-4: oklch(0.8 0.04 260);
   --chart-5: oklch(0.87 0.03 260);

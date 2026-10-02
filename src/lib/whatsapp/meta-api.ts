@@ -133,6 +133,30 @@ export async function verifyPhoneNumber(
   return response.json()
 }
 
+export interface MetaPhoneHealth extends MetaPhoneInfo {
+  /** e.g. TIER_1K, TIER_10K, TIER_UNLIMITED. */
+  messaging_limit_tier?: string
+}
+
+/**
+ * Like `verifyPhoneNumber`, but also asks for the messaging limit tier
+ * the dashboard's API-status card shows. Not every token / API version
+ * exposes `messaging_limit_tier`, so when Meta rejects the extended
+ * field list we fall back to the basic fields rather than failing.
+ */
+export async function getPhoneNumberHealth(
+  args: VerifyPhoneNumberArgs
+): Promise<MetaPhoneHealth> {
+  const { phoneNumberId, accessToken } = args
+  const url = `${META_API_BASE}/${phoneNumberId}?fields=id,display_phone_number,verified_name,quality_rating,messaging_limit_tier`
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  if (response.ok) return response.json()
+  if (response.status === 400) return verifyPhoneNumber(args)
+  return throwMetaError(response, `Meta API error: ${response.status}`)
+}
+
 // ============================================================
 // Cloud API registration (subscription for inbound webhooks)
 // ============================================================
